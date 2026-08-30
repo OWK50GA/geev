@@ -4,6 +4,7 @@ use crate::types::{
     DataKey, Error, Giveaway, GiveawayStatus, ParticipantVerification, SelectionMethod,
 };
 use crate::utils::{resolve_fee_bps, validate_fee, with_reentrancy_guard};
+use crate::access::require_not_paused;
 use soroban_sdk::{
     contract, contractevent, contractimpl, panic_with_error, token, Address, Env, String, Vec,
 };
@@ -90,6 +91,7 @@ impl GiveawayContract {
         selection_method: SelectionMethod,
         fee_bps: Option<u32>,
     ) -> u64 {
+        require_not_paused(&env);
         creator.require_auth();
 
         if winner_count == 0 {
@@ -168,6 +170,7 @@ impl GiveawayContract {
     }
 
     pub fn enter_giveaway(env: Env, participant: Address, giveaway_id: u64) {
+        require_not_paused(&env);
         participant.require_auth();
 
         let giveaway_key = DataKey::Giveaway(giveaway_id);
@@ -369,6 +372,7 @@ impl GiveawayContract {
     /// Called by an individual winner to claim their share of the prize
     /// while the giveaway is `Claimable` and before `claim_deadline`.
     pub fn claim_prize(env: Env, giveaway_id: u64, winner: Address) {
+        require_not_paused(&env);
         winner.require_auth();
 
         with_reentrancy_guard(&env, || {

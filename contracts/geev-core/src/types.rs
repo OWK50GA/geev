@@ -37,6 +37,7 @@ pub enum Error {
     AlreadyClaimed = 28,
     NotWinner = 29,
     InvalidFee = 31,
+    ContractPaused = 32,
 }
 
 #[derive(Clone, PartialEq, Eq, Debug)]
@@ -164,6 +165,8 @@ pub enum DataKey {
     // ─── Claim Lifecycle Tracking ──────────────────────────────────────────
     Claimed(u64, Address),   // whether a given winner has claimed their share
     HelpRequestClaimed(u64), // whether a help request's raised funds have been withdrawn
+    /// Circuit-breaker flag; `true` means the contract is paused.
+    Paused,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]

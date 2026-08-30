@@ -1,5 +1,6 @@
 use crate::types::{DataKey, Error, HelpRequest, HelpRequestStatus};
 use crate::utils::with_reentrancy_guard;
+use crate::access::require_not_paused;
 use soroban_sdk::{contract, contractevent, contractimpl, panic_with_error, token, Address, Env};
 
 const HELP_REQUEST_EXPIRY_SECONDS: u64 = 30 * 24 * 60 * 60;
@@ -100,6 +101,7 @@ impl MutualAidContract {
     }
 
     pub fn donate(env: Env, donor: Address, request_id: u64, amount: i128) {
+        require_not_paused(&env);
         donor.require_auth();
 
         if amount <= 0 {
@@ -210,6 +212,7 @@ impl MutualAidContract {
     /// The request moves to `Closed` and a one-shot claim record is written, so the
     /// payout cannot be repeated.
     pub fn claim_help_request_funds(env: Env, creator: Address, request_id: u64) {
+        require_not_paused(&env);
         creator.require_auth();
 
         with_reentrancy_guard(&env, || {

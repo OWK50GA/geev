@@ -46,6 +46,18 @@ pub struct AdminTransferred {
     new_admin: Address,
 }
 
+/// Emitted when the contract is paused by an admin.
+#[contractevent]
+pub struct ContractPaused {
+    admin: Address,
+}
+
+/// Emitted when the contract is unpaused by an admin.
+#[contractevent]
+pub struct ContractUnpaused {
+    admin: Address,
+}
+
 #[contractimpl]
 impl AdminContract {
     /// Emergency withdraw function - callable only by Admin
@@ -255,5 +267,32 @@ impl AdminContract {
         env.storage()
             .instance()
             .set(&DataKey::TokenFee(token), &fee_bps);
+    }
+
+    /// Pause the contract — blocks all value-moving entrypoints.
+    ///
+    /// Callable only by the admin. Emits [`ContractPaused`] on each
+    /// transition. `admin_withdraw` and `unpause` remain callable while
+    /// paused.
+    ///
+    /// # Panics
+    /// Panics if called by a non-admin address.
+    pub fn pause(env: Env) {
+        let admin = check_admin(&env);
+        env.storage().instance().set(&DataKey::Paused, &true);
+        ContractPaused { admin }.publish(&env);
+    }
+
+    /// Unpause the contract — restores all value-moving entrypoints.
+    ///
+    /// Callable only by the admin, including while the contract is paused.
+    /// Emits [`ContractUnpaused`] on each transition.
+    ///
+    /// # Panics
+    /// Panics if called by a non-admin address.
+    pub fn unpause(env: Env) {
+        let admin = check_admin(&env);
+        env.storage().instance().set(&DataKey::Paused, &false);
+        ContractUnpaused { admin }.publish(&env);
     }
 }
