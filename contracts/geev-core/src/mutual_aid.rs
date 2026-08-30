@@ -1,6 +1,6 @@
+use crate::access::require_not_paused;
 use crate::types::{DataKey, Error, HelpRequest, HelpRequestStatus};
 use crate::utils::with_reentrancy_guard;
-use crate::access::require_not_paused;
 use soroban_sdk::{contract, contractevent, contractimpl, panic_with_error, token, Address, Env};
 
 const HELP_REQUEST_EXPIRY_SECONDS: u64 = 30 * 24 * 60 * 60;

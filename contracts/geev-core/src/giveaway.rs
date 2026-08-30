@@ -1,10 +1,10 @@
 #![allow(clippy::too_many_arguments)]
+use crate::access::require_not_paused;
 use crate::profile::ProfileContract;
 use crate::types::{
     DataKey, Error, Giveaway, GiveawayStatus, ParticipantVerification, SelectionMethod,
 };
 use crate::utils::{resolve_fee_bps, validate_fee, with_reentrancy_guard};
-use crate::access::require_not_paused;
 use soroban_sdk::{
     contract, contractevent, contractimpl, panic_with_error, token, Address, Env, String, Vec,
 };
